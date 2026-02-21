@@ -1,42 +1,62 @@
-const CACHE_NAME = 'pontos-es-v1';
+const CACHE_NAME = 'pontos-es-v2';
 
-// All files to cache for offline use
-const ASSETS = [
+// Core files only — fonts load from network (or cache if already fetched)
+const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icons/icon-192.png',
-  './icons/icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fredoka+One&display=swap'
+  './icons/icon-512.png'
 ];
 
-// Install: cache all assets
+// Install: cache core files — don't let fonts block this
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
+      return cache.addAll(CORE_ASSETS);
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Activate: clean up old caches
+// Activate: remove old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
         keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch: serve from cache, fallback to network
+// Fetch: cache-first for our files, network-first for everything else
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // For our own origin: serve from cache, update in background
+  if (url.origin === location.origin) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.match(event.request).then((cached) => {
+          const networkFetch = fetch(event.request).then((response) => {
+            if (response.ok) cache.put(event.request, response.clone());
+            return response;
+          }).catch(() => cached);
+          return cached || networkFetch;
+        });
+      })
+    );
+    return;
+  }
+
+  // For external resources (fonts etc): try network, fallback to cache
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).catch(() => caches.match('./index.html'));
-    })
+    fetch(event.request)
+      .then((response) => {
+        const cloned = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
