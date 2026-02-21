@@ -15,6 +15,10 @@
 
   <title>⭐ Tabela Oficial de Pontos</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fredoka+One&display=swap" rel="stylesheet" />
+  <!-- Fallback font stack if offline and fonts not yet cached -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fredoka+One&display=swap');
+  </style>
 
   <style>
     :root {
@@ -403,8 +407,11 @@
 
   // ── Service Worker ────────────────────────────────────────────
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .catch(err => console.log('SW error:', err));
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .then((reg) => console.log('SW registered, scope:', reg.scope))
+        .catch(err => console.error('SW error:', err));
+    });
   }
 </script>
 </body>
