@@ -1,6 +1,6 @@
 {
   "name": "Tabela Oficial de Pontos — Escola Sabatina",
-  "short_name": "Pontos ES",
+  "short_name": "TabelaTeens",
   "description": "Calculadora de pontos da Escola Sabatina dos Adolescentes",
   "start_url": "./index.html",
   "display": "standalone",
