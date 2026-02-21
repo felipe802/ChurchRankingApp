@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f0c29" />
+  <meta name="description" content="Tabela Oficial de Pontos — Escola Sabatina dos Adolescentes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Pontos ES" />
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+
+  <title>⭐ Tabela Oficial de Pontos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fredoka+One&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #0f0c29;
+      --card: #1e1a45;
+      --accent1: #ff6b6b;
+      --accent2: #ffd93d;
+      --accent3: #6bcb77;
+      --accent4: #4d96ff;
+      --text: #ffffff;
+      --muted: #a99fd6;
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px 16px 110px;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(77,150,255,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255,107,107,0.15) 0%, transparent 50%);
+    }
+
+    header {
+      text-align: center;
+      padding: 24px 0 32px;
+    }
+
+    header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.8rem, 7vw, 3rem);
+      background: linear-gradient(135deg, var(--accent2), var(--accent1), var(--accent4));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* Install banner */
+    #installBanner {
+      display: none;
+      max-width: 540px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #1e1a45, #2a2460);
+      border: 1.5px solid rgba(77,150,255,0.4);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #installBanner.visible { display: flex; }
+
+    #installBanner p {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    #installBanner p strong { color: #fff; }
+
+    #installBtn {
+      background: var(--accent4);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 8px 16px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #dismissBanner {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .questions-list {
+      max-width: 540px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      border: 1.5px solid rgba(255,255,255,0.07);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.3s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .question-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--stripe, var(--accent4));
+      border-radius: 4px 0 0 4px;
+    }
+
+    .question-card:nth-child(4n+1) { --stripe: var(--accent4); }
+    .question-card:nth-child(4n+2) { --stripe: var(--accent1); }
+    .question-card:nth-child(4n+3) { --stripe: var(--accent2); }
+    .question-card:nth-child(4n+0) { --stripe: var(--accent3); }
+
+    .question-card.active {
+      border-color: rgba(255,255,255,0.25);
+      transform: scale(1.01);
+    }
+
+    .q-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .q-category {
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--stripe, var(--accent4));
+      margin-bottom: 2px;
+    }
+
+    .q-text {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .q-value {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.15rem;
+      color: var(--stripe, var(--accent4));
+      white-space: nowrap;
+      background: rgba(255,255,255,0.06);
+      padding: 4px 10px;
+      border-radius: 50px;
+    }
+
+    .q-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: -4px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 0;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-yes {
+      background: rgba(107, 203, 119, 0.15);
+      color: var(--accent3);
+      border: 2px solid var(--accent3);
+    }
+
+    .btn-no {
+      background: rgba(255, 107, 107, 0.1);
+      color: var(--accent1);
+      border: 2px solid rgba(255,107,107,0.4);
+    }
+
+    .btn-yes.selected { background: var(--accent3); color: #0f0c29; }
+    .btn-no.selected  { background: var(--accent1); color: #fff; }
+    .btn:active { transform: scale(0.96); }
+
+    /* Sticky total bar */
+    .total-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(15, 12, 41, 0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1.5px solid rgba(255,255,255,0.1);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      z-index: 100;
+    }
+
+    .total-label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .total-score {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      background: linear-gradient(135deg, var(--accent2), var(--accent1));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .total-score.pop { animation: pop 0.25s ease; }
+
+    @keyframes pop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    .reset-btn {
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .reset-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    @media (max-width: 360px) {
+      .q-text { font-size: 0.9rem; }
+      .btn { font-size: 0.9rem; padding: 10px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⭐ Tabela Oficial de Pontos</h1>
+  <p>Escola Sabatina dos Adolescentes • total atualiza em tempo real!</p>
+</header>
+
+<!-- PWA Install banner (Android / Desktop) -->
+<div id="installBanner">
+  <p><strong>📲 Instalar o app?</strong> Funciona offline e fica na tela inicial!</p>
+  <button id="installBtn">Instalar</button>
+  <button id="dismissBanner">✕</button>
+</div>
+
+<div class="questions-list" id="questionsList"></div>
+
+<div class="total-bar">
+  <span class="total-label">Total</span>
+  <span class="total-score" id="totalScore">0</span>
+  <button class="reset-btn" onclick="resetAll()">🔄 Reiniciar</button>
+</div>
+
+<script>
+  // ── PERGUNTAS ──────────────────────────────────────────────────
+  const questions = [
+    { category: "Liderança",       text: "Dirigir a Escola Sabatina",                                        value: 150 },
+    { category: "Missão Especial", text: "Levar Visitas NÃO ADVENTISTAS (por pessoa)",                       value: 110 },
+    { category: "Estudo Diário",   text: "Passar a Lição da Escola Sabatina",                                value: 105 },
+    { category: "Estudo Profundo", text: "Resumo Manuscrito do Livro + Explicação Oral",                     value: 100, note: "90 pts resumo + 10 pts explicação oral" },
+    { category: "Iniciativa",      text: "Trazer Inovações para a sala",                                     value: 100 },
+    { category: "Missão",          text: "Ser instrutor bíblico",                                            value: 90  },
+    { category: "Engajamento",     text: "Participação Ativa nas Redes Sociais da Escola Sabatina (aparecer, falar, curtir, comentar, compartilhar)", value: 65 },
+    { category: "Serviço",         text: "Trabalho Missionário na semana",                                   value: 65  },
+    { category: "Comunidade",      text: "Participar de Pequenos Grupos",                                    value: 65, note: "por semana" },
+    { category: "Generosidade",    text: "Oferta Caixa dos Adolescentes (5 reais por sábado)",               value: 60  },
+    { category: "Mordomia",        text: "Oferta Escola Sabatina",                                           value: 60  },
+    { category: "Pontualidade",    text: "Chegar no horário (até as 08:59h)",                                value: 50  },
+    { category: "Zelo",            text: "Arrumar a sala / cuidar da lousa",                                 value: 45  },
+    { category: "Espiritualidade", text: "Passar a Carta Missionária",                                       value: 40  },
+    { category: "Missão real",     text: "Orar em Público",                                                  value: 20  },
+    { category: "Compromisso",     text: "Ter assinatura da lição da escola sabatina",                       value: 5,  note: "por sábado" },
+  ];
+  // ──────────────────────────────────────────────────────────────
+
+  const state = new Array(questions.length).fill(null);
+
+  function buildUI() {
+    const list = document.getElementById('questionsList');
+    list.innerHTML = '';
+    questions.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = `card-${i}`;
+      card.innerHTML = `
+        <div class="q-top">
+          <div style="flex:1">
+            <div class="q-category">${q.category}</div>
+            <span class="q-text">${q.text}</span>
+            ${q.note ? `<div class="q-note">📌 ${q.note}</div>` : ''}
+          </div>
+          <span class="q-value">+${q.value} pts</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-yes" id="yes-${i}" onclick="answer(${i}, 'yes')">✅ Sim</button>
+          <button class="btn btn-no"  id="no-${i}"  onclick="answer(${i}, 'no')">❌ Não</button>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  function answer(index, choice) {
+    state[index] = choice;
+    document.getElementById(`yes-${index}`).classList.toggle('selected', choice === 'yes');
+    document.getElementById(`no-${index}`).classList.toggle('selected', choice === 'no');
+    document.getElementById(`card-${index}`).classList.add('active');
+    updateTotal();
+  }
+
+  function updateTotal() {
+    let total = 0;
+    state.forEach((s, i) => { if (s === 'yes') total += questions[i].value; });
+    const el = document.getElementById('totalScore');
+    el.textContent = total;
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
+  }
+
+  function resetAll() {
+    state.fill(null);
+    buildUI();
+    document.getElementById('totalScore').textContent = '0';
+  }
+
+  buildUI();
+
+  // ── PWA Install prompt ────────────────────────────────────────
+  let deferredPrompt = null;
+  const banner  = document.getElementById('installBanner');
+  const installBtn = document.getElementById('installBtn');
+  const dismissBtn = document.getElementById('dismissBanner');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    banner.classList.add('visible');
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    banner.classList.remove('visible');
+  });
+
+  dismissBtn.addEventListener('click', () => banner.classList.remove('visible'));
+
+  // ── Service Worker ────────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .catch(err => console.log('SW error:', err));
+  }
+</script>
+</body>
+</html>
