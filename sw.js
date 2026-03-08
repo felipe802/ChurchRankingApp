@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pontos-es-v4';
+const CACHE_NAME = 'pontos-es-v5';
 
 // Core files only — fonts load from network (or cache if already fetched)
 const CORE_ASSETS = [
